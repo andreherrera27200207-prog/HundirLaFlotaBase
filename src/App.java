@@ -2,66 +2,40 @@ import java.util.Random;
 import java.util.Scanner;
 
 public class App {
-    /**
-     * Scanner para la entrada de datos por teclado.
-     */
+    
     private static Scanner sc = new Scanner(System.in);
 
-    /**
-     * Tamaño del tablero de juego.
-     */
+    
     private static int TAM = 10;
 
-    /**
-     * Tablero del jugador 1.
-     * Cada posición contiene:
-     * 0 = agua, 1-5 = barco sin tocar, 6 = barco tocado, 7 = disparo a agua.
-     */
+    
     private static int barcosJ1[][] = new int[TAM][TAM];
 
-    /**
-     * Tablero del jugador 2.
-     * Igual que {@link #barcosJ1}.
-     */
+    
     private static int barcosJ2[][] = new int[TAM][TAM];
 
-    /**
-     * Número de casillas de barco que quedan por hundir del jugador 1.
-     */
+    
     private static int nBarcos1;
 
-    /**
-     * Número de casillas de barco que quedan por hundir del jugador 2.
-     */
+    
     private static int nBarcos2;
 
-    /**
-     * Matriz auxiliar para colocar barcos temporalmente al generar el tablero.
-     */
+    
     private static int matrizAux[][] = new int[TAM][TAM];
 
-    /**
-     * Cantidad de barcos por tipo (índice 0 = tamaño 1, índice 4 = tamaño 5).
-     */
+   
     private static final int cantidad[] = { 5, 4, 3, 2, 1 };
 
-    /**
-     * Tamaño de los barcos (1 a 5 casillas).
-     */
+    
     private static final int tamanios[] = { 1, 2, 3, 4, 5 };
 
-    /**
-     * Nombres de los barcos según su tamaño.
-     */
+    
     private static final String[] nombres = { "Lancha", "Crucero", "Submarino", "Buque", "Portaaviones" };
 
-    /**
-     * Direcciones posibles para colocar los barcos: arriba, derecha, abajo,
-     * izquierda.
-     */
+   
     private static final int direcciones[][] = { { -1, 0 }, { 0, 1 }, { 1, 0 }, { 0, -1 } };
 
-    // Colores ANSI para imprimir el tablero en consola
+    
     private static final String ANSI_BLACK = "\u001B[30m";
     private static final String ANSI_RED = "\u001B[31m";
     private static final String ANSI_GREEN = "\u001B[32m";
@@ -263,7 +237,7 @@ public class App {
             } else {
                 System.out.println("\n>> TURNO MÁQUINA");
                 int x, y;
-                // IA simple: dispara aleatorio hasta encontrar hueco no disparado
+             
                 do {
                     x = r.nextInt(TAM);
                     y = r.nextInt(TAM);
@@ -310,13 +284,13 @@ public class App {
         }
 
         if (matriz[x][y] == 0) {
-            matriz[x][y] = 7; // Agua disparada
+            matriz[x][y] = 7; 
             return false;
         } else if (matriz[x][y] >= 1 && matriz[x][y] <= 5) {
-            matriz[x][y] = 6; // Tocado
+            matriz[x][y] = 6; 
             return true;
         } else {
-            // Ya disparado (6 o 7)
+            
             System.out.println("Ya has disparado aquí.");
             return false;
         }
@@ -333,32 +307,29 @@ public class App {
      *         solo ha sido tocado.
      */
     public static boolean cantarDisparo(int[][] matriz, int x, int y) {
-        // Algoritmo de inundación (BFS/DFS) para ver si el componente conexo de 6s
-        // tiene algún vecino que sea barco intacto (1-5).
-
-        // Matriz de visitados para no ciclar
+        
         boolean[][] visitado = new boolean[TAM][TAM];
         return checkHundido(matriz, x, y, visitado);
     }
 
     private static boolean checkHundido(int[][] matriz, int x, int y, boolean[][] visitado) {
         if (x < 0 || x >= TAM || y < 0 || y >= TAM)
-            return true; // Fuera del tablero es "seguro"
+            return true; 
         if (visitado[x][y])
             return true;
         visitado[x][y] = true;
 
         int val = matriz[x][y];
 
-        // Si encontramos una parte de barco intacta, NO está hundido
+      
         if (val >= 1 && val <= 5)
             return false;
 
-        // Si es agua o agua disparada, es un límite, no seguimos buscando por aquí
+        
         if (val == 0 || val == 7)
             return true;
 
-        // Si es 6 (tocado), seguimos buscando en sus vecinos
+        
         if (val == 6) {
             boolean arriba = checkHundido(matriz, x - 1, y, visitado);
             boolean abajo = checkHundido(matriz, x + 1, y, visitado);
@@ -396,7 +367,7 @@ public class App {
         Random r = new Random();
         int x, y, direccion = -1;
 
-        // Reiniciar matrizAux para asegurar que está limpia
+        
         matrizAux = new int[TAM][TAM];
 
         for (int i = cantidad.length - 1; i >= 0; i--) {
@@ -406,12 +377,12 @@ public class App {
                     x = r.nextInt(TAM);
                     y = r.nextInt(TAM);
                     intentos++;
-                    // Evitar bucle infinito si no hay espacio (aunque en 10x10 debería caber)
+                    
                     if (intentos > 1000) {
-                        // Si falla mucho, reiniciamos todo el tablero (estrategia simple)
+                      
                         matrizAux = new int[TAM][TAM];
                         i = cantidad.length - 1;
-                        j = -1; // Se incrementará a 0 en el bucle
+                        j = -1; 
                         break;
                     }
                 } while ((direccion = comprobarDirecciones(x, y, tamanios[i])) == -1);
@@ -426,7 +397,7 @@ public class App {
         for (int i = 0; i < TAM; i++) {
             matrizJuego[i] = matrizAux[i].clone();
         }
-        // Limpiar para la siguiente generación
+       
         matrizAux = new int[TAM][TAM];
         return matrizJuego;
     }
@@ -481,16 +452,16 @@ public class App {
         int nDireccionesViables = 0;
         boolean viable = true;
 
-        // Primero comprobamos si el punto de origen es válido
+        
         if (!comprobarPosicion(x, y))
             return -1;
 
         if (tamBarco == 1)
-            return 0; // Dirección irrelevante para tamaño 1, devolvemos 0 (arriba) por defecto
+            return 0; 
 
         for (int i = 0; i < direcciones.length; i++) {
             viable = true;
-            for (int j = 1; j < tamBarco; j++) { // Empezamos en j=1 porque j=0 ya se comprobó arriba
+            for (int j = 1; j < tamBarco; j++) { 
                 if (!comprobarPosicion(x + direcciones[i][0] * j, y + direcciones[i][1] * j)) {
                     viable = false;
                     break;
@@ -568,10 +539,7 @@ public class App {
         }
     }
 
-    /**
-     * Muestra el tablero del jugador 1 y el tablero rival, ocultando los barcos
-     * enemigos.
-     */
+    
     public static void mostrarJugador1() {
         System.out.println("\n--- TU TABLERO (JUGADOR 1) ---");
         mostrarTablero(barcosJ1);
@@ -580,10 +548,7 @@ public class App {
         mostrarTableroOculto(barcosJ2);
     }
 
-    /**
-     * Muestra el tablero del jugador 2 y el tablero rival, ocultando los barcos
-     * enemigos.
-     */
+    
     public static void mostrarJugador2() {
         System.out.println("\n--- TU TABLERO (JUGADOR 2) ---");
         mostrarTablero(barcosJ2);
@@ -612,13 +577,13 @@ public class App {
                 String color = ANSI_BLUE;
 
                 if (valor == 0 || (valor >= 1 && valor <= 5)) {
-                    simbolo = "~"; // Ocultamos barcos como agua
+                    simbolo = "~"; 
                     color = ANSI_BLUE;
                 } else if (valor == 6) {
-                    simbolo = "X"; // Tocado
+                    simbolo = "X"; 
                     color = ANSI_RED;
                 } else if (valor == 7) {
-                    simbolo = "O"; // Agua disparada
+                    simbolo = "O"; 
                     color = ANSI_CYAN;
                 }
 
@@ -645,11 +610,11 @@ public class App {
                     coordenadasValidas = true;
                 } else {
                     System.out.println("Coordenada e inválida. Introduce Fila y Columna (números):");
-                    sc.next(); // Limpiar
+                    sc.next(); 
                 }
             } else {
                 System.out.println("Entrada inválida. Introduce Fila y Columna (números):");
-                sc.next(); // Limpiar
+                sc.next();
             }
         }
         return new int[] { x, y };
